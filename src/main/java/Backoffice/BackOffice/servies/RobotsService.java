@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-public class RobotsService {
+public class    RobotsService {
 
     private final RobotsRepository robotsRepository;
     private final LLMRequestsService llmRequestsService;
@@ -24,7 +24,11 @@ public class RobotsService {
     }
 
     private String generateSerialNumber(){
-        return "SN" + String.format("%08d",(int)(Math.random() * 10000000));
+        String serialNumber;
+        do {
+            serialNumber = "SN" + String.format("%08d", (int) (Math.random() * 10000000));
+        } while (robotsRepository.existsBySerialNumber(serialNumber));
+        return serialNumber;
     }
 
     public Robots registerRobot(RegisterRobotRequest request) {
@@ -37,34 +41,35 @@ public class RobotsService {
         robot.setType(request.getType());
         robot.setVersion(request.getVersion());
 
-        if(robot.getSerialNumber() == null || robot.getSerialNumber().isEmpty()){
-            robot.setSerialNumber(robot.generateSerialNumber());
-        }
-
         Robots savedRobot = robotsRepository.save(robot);
 
-        llmRequestsService.saveLLMRequest(savedRobot.getId(), SourceType.GPT4O_mini, "자동 프롬프트", "자동 응답");
+        System.out.println("Generated Serial Number: " + savedRobot.getSerialNumber());
+
+
+        llmRequestsService.saveLLMRequest(String.valueOf(savedRobot.getId()), SourceType.GPT4O_mini, "자동 프롬프트", "자동 응답", savedRobot.getSerialNumber());
 
         return savedRobot;
     }
 
     public Robots updateRobotStatus(String robotId, String type, String version){
         Robots robot = robotsRepository.findByRobotId(robotId);
-        if (robot != null) {
-            robot.setType(type);
-            robot.setVersion(version);
-            robotsRepository.save(robot);
-            return robotsRepository.save(robot);
+        if (robot == null) {
+            throw new IllegalArgumentException("Robot with ID" + robotId + "not found");
         }
-        return null;
+        robot.setType(type);
+        robot.setVersion(version);
+        return robotsRepository.save(robot);
     }
 
-    public Robots getRobotStatus(String robotId){
-        return robotsRepository.findByRobotId(robotId);
+    public Optional<Robots> getRobotStatus(String robotId){
+        return Optional.ofNullable(robotsRepository.findByRobotId(robotId));
     }
 
     public List<Robots> findAllRobots(){
         return robotsRepository.findAll();
     }
 
+    public Robots getRobotBySerialNumber(String serialNumber){
+        return robotsRepository.findBySerialNumber(serialNumber);
+    }
 }

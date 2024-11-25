@@ -12,7 +12,8 @@ public class LLMRequests {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long robotId;
+    @Column(name = "robot_id", nullable = false)
+    private String robotId;
 
     @Enumerated(EnumType.STRING)
     private SourceType source = SourceType.GPT4O_mini;
@@ -25,6 +26,9 @@ public class LLMRequests {
 
     @Column(name = "created", updatable = false)
     private LocalDateTime created;
+
+    @Column(name = "serial_number", nullable = false)
+    private String serialNumber;
 
     @Column(name = "updated")
     private LocalDateTime updated;
@@ -40,11 +44,11 @@ public class LLMRequests {
         this.updated = LocalDateTime.now();
     }
 
-    public Long getRobotId() {
+    public String getRobotId() {
         return robotId;
     }
 
-    public void setRobotId(Long robotId) {
+    public void setRobotId(String robotId) {
         this.robotId = robotId;
     }
 
@@ -72,4 +76,11 @@ public class LLMRequests {
         this.response = response;
     }
 
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
 }
