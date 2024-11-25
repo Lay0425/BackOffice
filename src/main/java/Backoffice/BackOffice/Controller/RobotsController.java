@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.util.List;
 
 @RestController
@@ -40,18 +41,22 @@ public class RobotsController {
         return robot != null ? ResponseEntity.ok(robot) : ResponseEntity.notFound().build();
     }
 
-    /**
-     * 특정 로봇 상태 조회
-     */
+    //특정 로봇 상태 조회
     @GetMapping("/{robotId}")
     public ResponseEntity<Robots> getRobotStatus(@PathVariable String robotId) {
-        Robots robot = robotsService.getRobotStatus(robotId);
+        Robots robot = robotsService.getRobotStatus(robotId)
+                .orElseThrow(() -> new IllegalArgumentException("Robot not Found with ID" + robotId));
+        return ResponseEntity.ok(robot);
+    }
+
+    // 시리얼넘버로 로봇 조회
+    @GetMapping("/robots/{serialNumber}")
+    public ResponseEntity<Robots> getRobotBySerialNumber(@PathVariable String serialNumber){
+        Robots robot = robotsService.getRobotBySerialNumber(serialNumber);
         return robot != null ? ResponseEntity.ok(robot) : ResponseEntity.notFound().build();
     }
 
-    /**
-     * 모든 로봇 조회
-     */
+    //모든 로봇 조회
     @GetMapping("/all")
     public ResponseEntity<List<Robots>> getAllRobots() {
         List<Robots> robots = robotsService.findAllRobots();

@@ -11,13 +11,16 @@ public class Robots {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "robot_id",nullable = false, unique = true)
     private String robotId;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "serial_number" ,nullable = false,unique = true)
     private String serialNumber;
 
+    @Column(name = "type", nullable = false)
     private String type;
+
+    @Column(name = "version", nullable = false)
     private String version;
 
     @Column(name = "created_at", updatable = false)
